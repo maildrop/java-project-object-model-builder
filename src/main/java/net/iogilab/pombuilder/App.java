@@ -143,9 +143,31 @@ public final class App{
             final java.io.Writer output;
             if( cmd.hasOption("o") ){
                 final Path path = FileSystems.getDefault().getPath( cmd.getOptionValue( "o" )  );
-                if( path.toFile().exists() ){
+                final java.io.File baseDirectory;
+                if( path.getParent() != null ) {
+                    baseDirectory = path.getParent().toFile();
+                }else{
+                    baseDirectory = FileSystems.getDefault().getPath(".").toFile();
+                }
+                logger.info( baseDirectory.toString());
+                for( final String p : new String[]{
+                        "src",
+                        "src/main",
+                        "src/test",
+                        "src/main/java",
+                        "src/main/resources",
+                        "src/test/java",
+                        "src/test/resources"
+                    } ){
+                    final java.io.File f = new java.io.File( baseDirectory , p );
+                    f.mkdir();
+                }
+
+                final java.io.File file = path.toFile();
+                if( file.exists() ){
                     throw new FileExistsException();
                 }
+                
                 output = Files.newBufferedWriter( path , java.nio.charset.StandardCharsets.UTF_8 );
             }else{
                 output = new java.io.OutputStreamWriter(System.out);
